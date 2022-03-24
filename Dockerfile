@@ -1,8 +1,8 @@
 # Build stage
-FROM node:lts AS build
+FROM registry.access.redhat.com/ubi8/nodejs-16:latest AS build
 
 ## Set current working directory
-WORKDIR /community-server
+WORKDIR /opt/app-root/src
 
 ## Copy the package.json for audit
 COPY package*.json ./
@@ -13,37 +13,33 @@ COPY . .
 ## Install and build the Solid community server (prepare script cannot run in wd)
 RUN npm ci --unsafe-perm && npm run build
 
-
-
-
 # Runtime stage
-FROM node:lts-alpine
+FROM registry.access.redhat.com/ubi8/nodejs-16-minimal:latest AS runtime
 
 ## Add contact informations for questions about the container
 LABEL maintainer="Solid Community Server Docker Image Maintainer <matthieubosquet@gmail.com>"
 
 ## Container config & data dir for volume sharing
 ## Defaults to filestorage with /data directory (passed through CMD below)
-RUN mkdir /config /data
+RUN mkdir /opt/app-root/data
 
 ## Set current directory
-WORKDIR /community-server
+WORKDIR /opt/app-root/src
 
 ## Copy runtime files from build stage
-COPY --from=build /community-server/package.json .
-COPY --from=build /community-server/bin ./bin
-COPY --from=build /community-server/config ./config
-COPY --from=build /community-server/dist ./dist
-COPY --from=build /community-server/node_modules ./node_modules
-COPY --from=build /community-server/templates ./templates
+COPY --from=build /opt/app-root/src/package.json .
+COPY --from=build /opt/app-root/src/bin ./bin
+COPY --from=build /opt/app-root/src/config ./config
+COPY --from=build /opt/app-root/src/dist ./dist
+COPY --from=build /opt/app-root/src/node_modules ./node_modules
+COPY --from=build /opt/app-root/src/templates ./templates
 
 ## Configure permissions for App Directories & Run Container as Non-Root User
-RUN chgrp -R 0 /config && \
-    chmod -R g=u /config
-RUN chgrp -R 0 /data && \
-    chmod -R g=u /data
+#RUN chgrp -R 0 /config && \
+#    chmod -R g=u /config
+#RUN chgrp -R 0 /data && \
+#    chmod -R g=u /data
 
-#USER ROOT
 #RUN chown -R 1001:0 /config && chown -R 1001:0 /data    
 #USER 1001
 
@@ -54,4 +50,4 @@ EXPOSE 3000
 ENTRYPOINT [ "node", "bin/server.js" ]
 
 ## By default run in filemode (overriden if passing alternative arguments)
-CMD [ "-c", "config/file.json", "-f", "/data" ]
+CMD [ "-c", "config/file.json", "-f", "/opt/app-root/data" ]
