@@ -37,6 +37,15 @@ COPY --from=build /community-server/dist ./dist
 COPY --from=build /community-server/node_modules ./node_modules
 COPY --from=build /community-server/templates ./templates
 
+## Configure permissions for App Directories & Run Container as Non-Root User
+RUN chgrp -R 0 /config && \
+    chmod -R g=u /config
+RUN chgrp -R 0 /data && \
+    chmod -R g=u /data
+
+USER 1001
+RUN chown -R 1001:0 /config && chown -R 1001:0 /data    
+
 ## Informs Docker that the container listens on the specified network port at runtime
 EXPOSE 3000
 
