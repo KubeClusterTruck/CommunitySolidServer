@@ -43,8 +43,9 @@ RUN chgrp -R 0 /config && \
 RUN chgrp -R 0 /data && \
     chmod -R g=u /data
 
-USER 1001
-RUN chown -R 1001:0 /config && chown -R 1001:0 /data    
+#USER ROOT
+#RUN chown -R 1001:0 /config && chown -R 1001:0 /data    
+#USER 1001
 
 ## Informs Docker that the container listens on the specified network port at runtime
 EXPOSE 3000
