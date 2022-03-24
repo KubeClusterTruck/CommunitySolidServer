@@ -38,7 +38,7 @@ COPY --from=build /opt/app-root/src/templates ./templates
 RUN chgrp -R 0 /opt/app-root/data && \
     chmod -R g=u /opt/app-root/data
 
-RUN chown -R 1001:0 /opt/app-root/data    
+#RUN chown -R 1001:0 /opt/app-root/data    
 #USER 1001
 
 ## Informs Docker that the container listens on the specified network port at runtime
