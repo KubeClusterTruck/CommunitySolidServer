@@ -35,12 +35,10 @@ COPY --from=build /opt/app-root/src/node_modules ./node_modules
 COPY --from=build /opt/app-root/src/templates ./templates
 
 ## Configure permissions for App Directories & Run Container as Non-Root User
-#RUN chgrp -R 0 /config && \
-#    chmod -R g=u /config
-#RUN chgrp -R 0 /data && \
-#    chmod -R g=u /data
+RUN chgrp -R 0 /opt/app-root/data && \
+    chmod -R g=u /opt/app-root/data
 
-#RUN chown -R 1001:0 /config && chown -R 1001:0 /data    
+RUN chown -R 1001:0 /opt/app-root/data    
 #USER 1001
 
 ## Informs Docker that the container listens on the specified network port at runtime
